@@ -2,6 +2,7 @@ import { Context, Logger, Schema, h, Bot } from 'koishi'
 import { WebSocketServer, WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
 import { getListeningEvent, getSubscribedEvents, wsConf, Translate, resolveTranslate } from './values'
+import { formatMinecraftMessage, isBotMessage, ImageMode } from './message'
 import zhCN from './locale/zh-CN.yml'
 import enUS from './locale/en-US.yml'
 
@@ -142,21 +143,19 @@ class mcWss {
     }
 
     private setupMessageHandler() {
-        let imgurl: any = '<unknown image url>'
         this.ctx.on('message', async (session) => {
-            if (session.content.includes('<img') && h.select(session.content, 'img')[0]?.type === 'img' && h.select(session.content, 'img')[0]?.attrs?.src) {
-                imgurl = h.select(session.content, 'img')[0].attrs.src
-            }
+            if (isBotMessage(session, this.ctx.bots)) return
+            if (typeof session.content !== 'string') return
 
             if (this.conf.sendToChannel.includes(`${session.platform}:${session.channelId}`) || session.platform === "sandbox") {
                 if ((session.content.startsWith(this.conf.sendprefix)) && session.content !== this.conf.sendprefix) {
                     const locale = this.conf.locale || 'zh-CN'
-                    let msg: string = session.content.replaceAll('&amp;', '&').replaceAll(/<\/?template>/gi, '').replace(this.conf.sendprefix, '')
-                    .replaceAll(/<json.*\/>/gi, renderStr(this.ctx, locale, 'minecraft-sync-msg.message.jsonPlaceholder'))
-                    .replaceAll(/<video.*\/>/gi, renderStr(this.ctx, locale, 'minecraft-sync-msg.message.videoPlaceholder'))
-                    .replaceAll(/<audio.*\/>/gi, renderStr(this.ctx, locale, 'minecraft-sync-msg.message.audioPlaceholder'))
-                    .replaceAll(/<img.*\/>/gi, `[[CICode,url=${imgurl}]]`)
-                    .replaceAll(/<at.*\/>/gi, `@[${h.select(session.content, 'at')[0]?.attrs?.name ? h.select(session.content, 'at')[0]?.attrs?.name : h.select(session.content, 'at')[0]?.attrs?.id}]`)
+                    const msg = formatMinecraftMessage(
+                        session.content.slice(this.conf.sendprefix.length),
+                        this.conf.imageMode,
+                        key => renderStr(this.ctx, locale, key),
+                    )
+                    if (!msg.trim()) return
                     let username = session.username || session.author?.nickname || session.author?.name || session.author?.nick
                     if (!username) {
                         try {
@@ -249,7 +248,8 @@ namespace mcWss {
         sendToChannel: string[],
         sendprefix: string,
         hideConnect: boolean,
-        locale: string | any
+        locale: string | any,
+        imageMode?: ImageMode
     }
 
     export const Config: Schema<Config> = Schema.intersect([
@@ -259,6 +259,8 @@ namespace mcWss {
           .description('消息发送到目标群组格式{paltform}:{groupId}'),
           sendprefix: Schema.string().default('.#')
           .description("消息发送前缀（不可与命令发送前缀相同）"),
+          imageMode: Schema.union(['placeholder', 'chatimage', 'link']).default('placeholder')
+          .description('图片/表情包显示方式；chatimage 需要玩家安装 ChatImage'),
           hideConnect: Schema.boolean().default(true).description('关闭连接成功/失败提示'),
           locale: Schema.union(['zh-CN','en-US']).default('zh-CN')
           .description('本地化语言选择,zh_CN为中文,en-US为英文')

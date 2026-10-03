@@ -16,7 +16,7 @@ tsconfig.tsbuildinfo
 *.njsproj
 *.sln
 yarn.lock
-package-lock.json
+*.tgz
 
 docs
 docs/

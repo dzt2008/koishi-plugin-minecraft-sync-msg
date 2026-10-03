@@ -11,7 +11,19 @@
 **注意**  
 rcon并非完全跟控制台一样所有命令都会有反馈
 
+# 自身消息与媒体修复分支
+
+本分支修复机器人自身消息回流，以及多图/表情转换问题。默认媒体显示为占位文字（不再刷出长链接）；需要游戏内直接看图时，将 `imageMode` 设置为 `chatimage` 并在玩家客户端安装 ChatImage。详见 [修复方案与验收说明](./FIX-PLAN.md)。
+
+开发验证：`npm ci --ignore-scripts` → `npm test` → `npm pack`。
+
 # CHANGELOG
+
+## v3.0.7-fix.1
+* 两种 WebSocket 模式在转发和 RCON 前过滤当前机器人及同平台已登录机器人的消息。
+* 共用逐元素媒体转换，修复多图吞文字、复用首图地址和多个 @ 错配的问题。
+* 新增 `imageMode`：`placeholder`（默认）、`chatimage`、`link`。
+* 增加自动化回归测试及独立构建脚本。
 
 ## v3.0.6
 ### 修复

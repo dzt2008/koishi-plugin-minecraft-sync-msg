@@ -3,6 +3,7 @@ import { WebSocket, RawData } from 'ws'
 import { Rcon } from 'rcon-client'
 import { getListeningEvent, getSubscribedEvents, wsConf, rconConf, Translate, resolveTranslate } from './values'
 import mcWss from './mcwss'
+import { formatMinecraftMessage, isBotMessage, ImageMode } from './message'
 import zhCN from './locale/zh-CN.yml'
 import enUS from './locale/en-US.yml'
 
@@ -277,9 +278,10 @@ class MinecraftSyncMsg {
 
   private setupMessageHandler() {
     this.ctx.on('message', async (session) => {
-      if (!this.isValidChannel(session)) return
+      if (isBotMessage(session, this.ctx.bots)) return
+      if (typeof session.content !== 'string' || !this.isValidChannel(session)) return
 
-      if (this.isMessageCommand(session)) {
+      if (this.config.wsServer !== '服务端' && this.isMessageCommand(session)) {
         await this.handleMessageCommand(session)
       }
 
@@ -307,20 +309,12 @@ class MinecraftSyncMsg {
   }
 
   private async handleMessageCommand(session: any) {
-    let imgurl:any='<unknown image url>';
-    if (session.content.includes('<img') && h.select(session.content, 'img')[0]?.type === 'img' && h.select(session.content, 'img')[0]?.attrs?.src) {
-      imgurl = h.select(session.content, 'img')[0].attrs.src
-    }
-
-    let msg = session.content
-      .replaceAll('&amp;', '&')
-      .replaceAll(/<\/?template>/gi, '')
-      .replace(this.config.sendprefix, '')
-      .replaceAll(/<json.*\/>/gi, this.t('minecraft-sync-msg.message.jsonPlaceholder'))
-      .replaceAll(/<video.*\/>/gi, this.t('minecraft-sync-msg.message.videoPlaceholder'))
-      .replaceAll(/<audio.*\/>/gi, this.t('minecraft-sync-msg.message.audioPlaceholder'))
-      .replaceAll(/<img.*\/>/gi, `[[CICode,url=${imgurl}]]`)
-      .replaceAll(/<at.*\/>/gi,`@[${h.select(session.content, 'at')[0]?.attrs?.name? h.select(session.content, 'at')[0]?.attrs?.name:h.select(session.content, 'at')[0]?.attrs?.id}]`)
+    const msg = formatMinecraftMessage(
+      session.content.slice(this.config.sendprefix.length),
+      this.config.imageMode,
+      key => this.t(key),
+    )
+    if (!msg.trim()) return
 
     try {
       const { output, color } = this.extractAndRemoveColor(msg)
@@ -345,7 +339,9 @@ class MinecraftSyncMsg {
           ]
         }
       }
-      this.ws?.send(JSON.stringify(msgData))
+      if (this.ws?.readyState === WebSocket.OPEN) {
+        this.ws.send(JSON.stringify(msgData))
+      }
     } catch (err) {
       logger.error('[minecraft-sync-msg] 消息发送到WebSocket服务端失败', err)
     }
@@ -438,6 +434,7 @@ namespace MinecraftSyncMsg {
     cmdprefix: string
     hideConnect: boolean
     locale: string
+    imageMode?: ImageMode
   }
 
   export const Config: Schema<Config> = Schema.intersect([
@@ -450,6 +447,8 @@ namespace MinecraftSyncMsg {
         .description("消息发送前缀（不可与命令发送前缀相同,可以为空）"),
       cmdprefix: Schema.string().default('./')
         .description("命令发送前缀（不可与消息发送前缀相同）"),
+      imageMode: Schema.union(['placeholder', 'chatimage', 'link']).default('placeholder')
+        .description('图片/表情包：placeholder 仅占位；chatimage 需要玩家安装 ChatImage；link 显示链接'),
       hideConnect: Schema.boolean().default(true).description('关闭连接成功/失败提示'),
       locale: Schema.union(['zh-CN','en-US']).default('zh-CN')
         .description('本地化语言选择,zh_CN为中文,en-US为英文')

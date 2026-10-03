@@ -1,7 +1,21 @@
 {
   "name": "koishi-plugin-minecraft-sync-msg",
   "description": "搭配鹊桥v0.3.x的mc消息互联插件 (更新前请停止插件)",
-  "version": "3.0.6",
+  "version": "3.0.7-fix.1",
+  "scripts": {
+    "build": "tsc -b && node scripts/build.cjs",
+    "test": "npm run build && tsx --test test/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/ws": "^8.18.2",
+    "esbuild": "^0.23.1",
+    "js-yaml": "^4.1.0",
+    "koishi": "^4.18.11",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "yml-register": "^1.2.5"
+  },
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "homepage": "https://blog.iin0.cn/views/myblog/mc/koishiandmc.html",
@@ -21,7 +35,8 @@
   },
   "files": [
     "lib",
-    "dist"
+    "dist",
+    "FIX-PLAN.md"
   ],
   "license": "MIT",
   "keywords": [

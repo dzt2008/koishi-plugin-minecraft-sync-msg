@@ -17,6 +17,8 @@ minecraft-sync-msg:
     jsonPlaceholder: '<json message>'
     videoPlaceholder: '<video message>'
     audioPlaceholder: '<audio message>'
+    imagePlaceholder: '[Image]'
+    emojiPlaceholder: '[Emoji]'
     unknownUser: 'Unknown User'
   rcon:
     dangerousCmd: 'Dangerous command, forbidden'
