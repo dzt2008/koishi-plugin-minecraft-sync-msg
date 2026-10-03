@@ -55,7 +55,8 @@ rcon并非完全跟控制台一样所有命令都会有反馈
 * 本地 TypeScript 构建通过，**30 项自动化测试全部通过**，安装包文件清单已检查。
 * 测试包含客户端和服务端的真实本机 WebSocket 通信，覆盖自身消息过滤、普通消息单次转发、跨平台 ID、空前缀、多个图片、引用及 RCON 拦截；RCON 执行使用 mock。
 * 尚未完成真实聊天平台 → 鹊桥 → MC 客户端联调，也未验证真实客户端的图片渲染效果；自动化测试不等同于实机验收。
-* 修复维护在 `dzt2008/koishi-plugin-minecraft-sync-msg` 的 `fix/self-message-and-media` 分支，未向源仓库提交合并请求，未合并到 `master`。
+* 修复同时维护在 `dzt2008/koishi-plugin-minecraft-sync-msg` 的 `master` 与 `fix/self-message-and-media` 分支，未向源仓库提交合并请求。
+* 限制 npm 自动发布工作流仅在原作者仓库运行，防止本 fork 合并到 `master` 时意外尝试发布上游同名包。
 
 详细方案及现场验收步骤见 [FIX-PLAN.md](./FIX-PLAN.md)。
 

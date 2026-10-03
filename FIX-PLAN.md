@@ -20,7 +20,7 @@
 - [x] 多图、多个 @、表情、文字顺序保留，默认无图片裸链接。
 - [x] TypeScript 构建、30 项自动化测试、npm 打包清单检查通过。
 - [ ] 真实聊天平台 → 鹊桥 → MC 验证；安装 ChatImage 的客户端验图。
-- [ ] 创建/确认 `dzt2008` fork，并推送修复分支。
+- [x] 创建/确认 `dzt2008` fork，并推送修复分支。
 
 GitHub 授权已恢复，已创建并验证 `dzt2008/koishi-plugin-minecraft-sync-msg` fork。修复分支为 `fix/self-message-and-media`；真实聊天平台与 MC 客户端联调仍待完成。不要将令牌粘贴到聊天或提交进仓库。
 

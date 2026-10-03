@@ -8,6 +8,8 @@ on:
 
 jobs:
   publish_npm:
+    # Fork merges must not publish the upstream npm package.
+    if: github.repository == 'Twiyin0/koishi-plugin-minecraft-sync-msg'
     permissions:
       id-token: write
       contents: read
