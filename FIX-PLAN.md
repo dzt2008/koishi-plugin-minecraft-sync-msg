@@ -22,7 +22,7 @@
 - [ ] 真实聊天平台 → 鹊桥 → MC 验证；安装 ChatImage 的客户端验图。
 - [ ] 创建/确认 `dzt2008` fork，并推送修复分支。
 
-上传阻碍：本机 Git Credential Manager 中的 `dzt2008` 凭据调用 GitHub `/user` 返回 HTTP 401 `Bad credentials`。fork 尚未创建，修复尚未推送；需用户在本机重新授权 GitHub。不要将令牌粘贴到聊天或提交进仓库。
+GitHub 授权已恢复，已创建并验证 `dzt2008/koishi-plugin-minecraft-sync-msg` fork。修复分支为 `fix/self-message-and-media`；真实聊天平台与 MC 客户端联调仍待完成。不要将令牌粘贴到聊天或提交进仓库。
 
 ## 本地构建及安装
 
